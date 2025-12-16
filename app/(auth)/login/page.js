@@ -35,25 +35,51 @@ export default function Login() {
                     }
                     return errors;
                 }}
-                onSubmit={(values, { setSubmitting }) => {
-                setTimeout(() => {
-                // alert(JSON.stringify(values, null, 2));
-                axios
-                .post("https://dummyjson.com/auth/login",values)
-                .then((response)=>{
-                    console.log(response.data.accessToken); 
-                    sessionStorage.setItem("token",response.data.accessToken);
-                    router.push("/admin");
-                })
-                .catch((error)=>{
-                    // console.error(error.response.data.message);
-                    setformError(error.response.data.message);
-                })
-                .finally(() => setSubmitting(false));
-                setSubmitting(false);
-                }, 400);
-              }}
-            >
+                onSubmit={async(values, { setSubmitting }) => {
+            //     setTimeout(() => {
+            //     // alert(JSON.stringify(values, null, 2));
+            //     axios
+            //     .post("https://dummyjson.com/auth/login",values)
+            //     .then((response)=>{
+            //         console.log(response.data.accessToken); 
+            //         sessionStorage.setItem("token",response.data.accessToken);
+            //         router.push("/admin");
+            //     })
+            //     .catch((error)=>{
+            //         // console.error(error.response.data.message);
+            //         setformError(error.response.data.message);
+            //     })
+            //     .finally(() => setSubmitting(false));
+            //     setSubmitting(false);
+            //     }, 400);
+            //   }}
+            // >
+            try {
+              const res = await axios.post(
+                'https://dummyjson.com/auth/login',
+                values
+              );
+
+              
+              const role =
+                values.username === 'admin'
+                  ? 'admin'
+                  : values.username === 'parent'
+                  ? 'parent'
+                  : 'student';
+
+              document.cookie = `token=${res.data.accessToken}; path=/`;
+              document.cookie = `role=${role}; path=/`;
+
+              
+              router.push(`/${role}`);
+            } catch (err) {
+              setformError('Invalid credentials');
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+        >
          {({
          values,
          errors,
@@ -119,13 +145,13 @@ export default function Login() {
           </form>
        )}
       </Formik>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-400">
+       {formError && <p className='text-sm text-red-700'>{formError}</p>}
+          {/* <p className="mt-10 text-center text-sm/6 text-gray-400">
             Not a member?{' '}
             <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-300">
               Start a 14 day free trial
             </a>
-          </p>
+          </p> */}
         </div>
       </div>
     </>

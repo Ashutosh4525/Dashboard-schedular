@@ -10,8 +10,8 @@ import Sidenav from "@/components/Sidenav";
 export default function Dashboard({ children }) {
   return (
     <div className="flex h-screen">
-      {/* <Sidenav /> */}
       <main className="flex-1 overflow-auto">
+        <Sidenav />
         {children}
       </main>
     </div>

@@ -6,11 +6,11 @@ import { BiHome } from "react-icons/bi";
 import { FaBookmark, FaCalendarAlt } from "react-icons/fa";
 import Link from "next/link";
 
-export default function Home() {
+export default function Admin() {
    const [collapsed, setCollapsed] = useState(false);
   return (
    <>
-   <div className="flex h-screen" >
+   {/* <div className="flex h-screen" >
    <Sidebar collapsed={collapsed}>   
         <Menu style={{paddingTop:"50px"}}>
           <MenuItem icon={<BiHome />}component={<Link href="/home"/>}> Dashboard</MenuItem>
@@ -33,7 +33,7 @@ export default function Home() {
                   </Link>
           </div>
         </div>   
-      </div>
+      </div> */}
    </>
   );
 }
