@@ -13,5 +13,6 @@ export async function POST() {
     maxAge: 0,
   });
 
+  res.cookies.delete("token");
   return res;
 }
