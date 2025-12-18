@@ -6,6 +6,14 @@ import * as Yup from 'yup';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const loginSchema = Yup.object({
+  email: Yup.string()
+    .required("Email is required"),
+
+  password: Yup.string()
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters"),
+});
 
 export default function Login() {
   const router = useRouter();
@@ -24,17 +32,8 @@ export default function Login() {
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
            <Formik
-                initialValues={{ username: '', password: '' }}
-                validate={(values) => {
-                    const errors = {};
-                    if (!values.username) {
-                    errors.username = 'Username is Required';
-                    }
-                    if(!values.password){
-                        errors.password='Password is Required'
-                    }
-                    return errors;
-                }}
+                initialValues={{ email: '', password: '' }}
+                validationSchema={loginSchema}
                 onSubmit={async(values, { setSubmitting }) => {
             //     setTimeout(() => {
             //     // alert(JSON.stringify(values, null, 2));
@@ -55,26 +54,21 @@ export default function Login() {
             //   }}
             // >
             try {
-              const res = await axios.post(
-                'https://dummyjson.com/auth/login',
-                values
-              );
+              const res = await axios.post("/api/auth/login", values, { withCredentials: true });
 
+              const role = res.data.role;
+              console.log(res.data);
               
-              const role =
-                values.username === 'admin'
-                  ? 'admin'
-                  : values.username === 'parent'
-                  ? 'parent'
-                  : 'student';
+              console.log(role);
+               window.location.reload();
 
-              document.cookie = `token=${res.data.accessToken}; path=/`;
-              document.cookie = `role=${role}; path=/`;
-
-              
-              router.push(`/${role}`);
+              // setTimeout(() => {
+                // router.replace(`/${role}`);
+              // }, 100);
             } catch (err) {
-              setformError('Invalid credentials');
+              setformError(
+                err.response?.data?.message || "Login failed"
+              );
             } finally {
               setSubmitting(false);
             }
@@ -91,20 +85,20 @@ export default function Login() {
        }) => (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="username" className="block text-sm/6 font-medium text-gray-100">
+              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-100">
                 User name
               </label>
               <div className="mt-2">
                 <input
-                  id="username"
-                  name="username"
+                  id="email"
+                  name="email"
                   type="text"
                   onChange={handleChange}
                     onBlur={handleBlur}
-                    value={values.username}
+                    value={values.email}
                   className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
                 />
-                <p className="text-sm text-red-700">{errors.username && touched.username && errors.username}</p>
+                <p className="text-sm text-red-700">{errors.email && touched.email && errors.email}</p>
               </div>
             </div>
 

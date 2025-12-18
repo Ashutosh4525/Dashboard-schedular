@@ -10,6 +10,7 @@ export default function Admin() {
    const [collapsed, setCollapsed] = useState(false);
   return (
    <>
+   <h3>Admin</h3>
    {/* <div className="flex h-screen" >
    <Sidebar collapsed={collapsed}>   
         <Menu style={{paddingTop:"50px"}}>

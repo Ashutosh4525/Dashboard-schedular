@@ -1,101 +1,70 @@
-// import { NextResponse } from "next/server";
-
-// export function middleware(request){
-//     const {pathname}=request.nextUrl;
-
-//      const token = request.cookies.get('token')?.value;
-//      const role = request.cookies.get('role')?.value;
-
-//         const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
-
-//         const isAdminRoute = pathname.startsWith('/admin');
-//         const isParentRoute = pathname.startsWith('/parent');
-//         const isStudentRoute = pathname.startsWith('/student');
-//         const isTeacherRoute = pathname.startsWith('/teacher');
-
-//         if (
-//             !token &&
-//             (isAdminRoute || isParentRoute || isStudentRoute || isTeacherRoute)
-//         ) {
-//             return NextResponse.redirect(new URL('/login', request.url));
-//         }
-
-//         if (token && isAuthRoute) {
-//             return redirectToDashboard(role, request);
-//         }
-
-//         if (isAdminRoute && role !== 'admin') {
-//             return redirectToDashboard(role, request);
-//         }
-
-//         if (isParentRoute && role !== 'parent') {
-//             return redirectToDashboard(role, request);
-//         }
-
-//         if (isStudentRoute && role !== 'student') {
-//             return redirectToDashboard(role, request);
-//         }
-
-//         if (isTeacherRoute && role !== 'teacher') {
-//             return redirectToDashboard(role, request);
-//         }
-
-//         return NextResponse.next();
-
-// }
-
-
-// function redirectToDashboard(role, request) {
-//   switch (role) {
-//     case 'admin':
-//       return NextResponse.redirect(new URL('/admin', request.url));
-//     case 'parent':
-//       return NextResponse.redirect(new URL('/parent', request.url));
-//     case 'student':
-//       return NextResponse.redirect(new URL('/student', request.url));
-//     case 'teacher':
-//       return NextResponse.redirect(new URL('/teacher', request.url));
-//     default:
-//       return NextResponse.redirect(new URL('/login', request.url));
-//   }
-// }
-
-// export const config = {
-//   matcher: [
-//     '/login',
-//     '/register',
-//     '/admin/:path*',
-//     '/parent/:path*',
-//     '/student/:path*',
-//     '/teacher/:path*',
-//   ],
-// };
-
 import { NextResponse } from "next/server";
-import { verifyToken } from "@/lib/jwt";
+// import jwt from 'jsonwebtoken'
+import { jwtVerify } from "jose";
 
-export function middleware(req) {
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+export async function middleware(req) {
   const token = req.cookies.get("token")?.value;
   const path = req.nextUrl.pathname;
 
-  if (path.startsWith("/login")) return;
+  if (path === "/login" || path === "/register") {
+    if (!token) return NextResponse.next();
+
+    try {
+      const user = jwtVerify(token, secret);
+      return NextResponse.redirect(new URL(`/${user.role}`, req.url));
+    } catch {
+      return NextResponse.next();
+    }
+  }
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   try {
-    const user = verifyToken(token);
+    // const user = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (path.startsWith("/admin") && user.role !== "admin") {
+    // if (path.startsWith("/admin") && user.role !== "admin") {
+    //   return NextResponse.redirect(new URL("/login", req.url));
+    // }
+
+    //  if (path.startsWith("/student") && user.role !== "student") {
+    //   return NextResponse.redirect(new URL("/login", req.url));
+    // }
+
+    // if (path.startsWith("/teacher") && user.role !== "teacher") {
+    //   return NextResponse.redirect(new URL("/login", req.url));
+    // }
+
+    // if (path.startsWith("/parent") && user.role !== "parent") {
+    //   return NextResponse.redirect(new URL("/login", req.url));
+    // }
+
+    // return NextResponse.next();
+    const { payload } = await jwtVerify(token, secret);
+
+    if (path.startsWith("/admin") && payload.role !== "admin")
       return NextResponse.redirect(new URL("/login", req.url));
-    }
 
+    if (path.startsWith("/student") && payload.role !== "student")
+      return NextResponse.redirect(new URL("/login", req.url));
+
+    if (path.startsWith("/teacher") && payload.role !== "teacher")
+      return NextResponse.redirect(new URL("/login", req.url));
+
+    if (path.startsWith("/parent") && payload.role !== "parent")
+      return NextResponse.redirect(new URL("/login", req.url));
+
+    return NextResponse.next();
   } catch {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/parent/:path*", "/student/:path*",'/teacher/:path*'],
+  // matcher: ["/login","/register","/admin","/admin/:path*", "/parent/:path*", "/student/:path*",'/teacher/:path*'],
+   matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };
