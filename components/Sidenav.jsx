@@ -13,13 +13,35 @@ const Sidenav= () => {
   const [mounted, setMounted] = useState(false);
   
     useEffect(() => {
-    const cookie = document.cookie
-      .split("; ")
-      .find(row => row.startsWith("role="));
+    // const cookie = document.cookie
+    //   .split("; ")
+    //   .find(row => row.startsWith("role="));
 
-    setRole(cookie?.split("=")[1] || null);
-    setMounted(true);
+    // setRole(cookie?.split("=")[1] || null);
+    // setMounted(true);
+    //  const fetchUser = async () => {
+    //   try {
+    //     const res = await fetch("/api/auth/me");
+    //     const user = await res.json();
+    //     setRole(user?.role || null);
+    //   } catch {
+    //     setRole(null);
+    //   } 
+      // finally {
+      //   setLoading(false);
+      // }
+    // };
+
+    fetch("/api/auth/me")
+      .then(res => res.json())
+      .then(data => {
+        setRole(data?.role || null);
+        setMounted(true);
+      })
+      .catch(() => setMounted(true));
   }, []);
+
+  // if (loading) return null;
   if (!mounted) return null;
   const menuItems = sidebarConfig[role] || [];
 

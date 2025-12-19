@@ -7,8 +7,7 @@ import { cookies } from "next/headers";
 
 export async function POST(req) {
   await connectDB();
-
-  // AUTH CHECK
+  
   const token = cookies().get("token")?.value;
   if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 

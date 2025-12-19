@@ -60,10 +60,10 @@ export default function Login() {
               console.log(res.data);
               
               console.log(role);
-               window.location.reload();
+              //  window.location.reload();
 
               // setTimeout(() => {
-                // router.replace(`/${role}`);
+                router.replace(`/${role}`);
               // }, 100);
             } catch (err) {
               setformError(

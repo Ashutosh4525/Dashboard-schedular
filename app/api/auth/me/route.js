@@ -1,14 +1,20 @@
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/jwt";
+// // app/api/auth/me/route.js
+import { NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
-export async function GET() {
-  const token = cookies().get("token")?.value;
-  if (!token) return Response.json(null);
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+export async function GET(req) {
+  const token = req.cookies.get("token")?.value;
+  if (!token) return NextResponse.json(null, { status: 401 });
 
   try {
-    const user = verifyToken(token);
-    return Response.json(user);
+    const { payload } = await jwtVerify(token, secret);
+    return NextResponse.json({
+      id: payload.id,
+      role: payload.role,
+    });
   } catch {
-    return Response.json(null);
+    return NextResponse.json(null, { status: 401 });
   }
 }

@@ -43,6 +43,8 @@ export async function middleware(req) {
 
     // return NextResponse.next();
     const { payload } = await jwtVerify(token, secret);
+    console.log("JWT payload:", payload);
+    console.log("Redirecting to role:", payload.role);
 
     if (path.startsWith("/admin") && payload.role !== "admin")
       return NextResponse.redirect(new URL("/login", req.url));
